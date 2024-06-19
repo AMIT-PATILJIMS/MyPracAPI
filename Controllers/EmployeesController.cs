@@ -19,8 +19,36 @@ namespace MyPracAPI.Controllers
             using (MyEmployeeDetailsEntities entities = new MyEmployeeDetailsEntities()) 
             {
                 //return entities.EmployeeDatas.ToList();
-                return entities.EmployeeDatas.ToList();
+                //return (IQueryable<EmployeeData>)entities.EmployeeDatas.ToList();
+                var empdata = entities.EmployeeDatas.ToList();
+
+                return empdata;
             }
+        }
+
+        //[BasicAuthentication]
+        public HttpResponseMessage InsertEmployee([FromBody] EmployeeData employee) 
+        {
+            try
+            {
+                using (MyEmployeeDetailsEntities entities = new MyEmployeeDetailsEntities())
+                {
+                    entities.EmployeeDatas.Add(employee);
+                    entities.SaveChanges();
+
+                    var message = Request.CreateResponse(HttpStatusCode.Created, employee);
+
+                    message.Headers.Location = new Uri(Request.RequestUri + employee.Id.ToString());
+
+                    return message;
+                }
+            }
+
+            catch(Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
+            
         }
     }
 }
