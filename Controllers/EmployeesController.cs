@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.Remoting.Messaging;
 using System.Web.Helpers;
 using System.Web.Http;
 using System.Web.Http.Results;
 using System.Web.Mvc;
 using EmployeeDataAccess;
+using HttpDeleteAttribute = System.Web.Http.HttpDeleteAttribute;
 
 namespace MyPracAPI.Controllers
 {
     public class EmployeesController : ApiController
     {
-        [BasicAuthentication]
+       // [BasicAuthentication]
         public IEnumerable<EmployeeData> GetEmployees() 
         {
             using (MyEmployeeDetailsEntities entities = new MyEmployeeDetailsEntities()) 
@@ -26,7 +28,7 @@ namespace MyPracAPI.Controllers
             }
         }
 
-        //[BasicAuthentication]
+        [BasicAuthentication]
         public HttpResponseMessage InsertEmployee([FromBody] EmployeeData employee) 
         {
             try
@@ -49,6 +51,52 @@ namespace MyPracAPI.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
             }
             
+        }
+
+
+        public HttpResponseMessage Delete(int id)
+        {
+            using (MyEmployeeDetailsEntities entities = new MyEmployeeDetailsEntities())
+            {
+                entities.EmployeeDatas.Remove(entities.EmployeeDatas.Where(x => x.Id == id).FirstOrDefault());
+
+                var message = Request.CreateResponse(HttpStatusCode.Accepted, id);
+
+                entities.SaveChanges();
+
+                return message;
+            }
+        }
+
+        public HttpResponseMessage Put(int id, [FromBody]EmployeeData employee)
+        {
+            try
+            {
+                using (MyEmployeeDetailsEntities entities = new MyEmployeeDetailsEntities())
+                {
+                    var entity = entities.EmployeeDatas.FirstOrDefault(e => e.Id == id);
+
+                    //var message = Request.CreateResponse(HttpStatusCode.);
+
+                    if (entity == null)
+                    {
+                        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Employee with id = " + id.ToString() + "not found to update");
+                    }
+
+                    entity.EmployeeName = employee.EmployeeName;
+                    entity.Salary = employee.Salary;
+                    entity.Gender = employee.Gender;
+                    entity.ManagerId = employee.ManagerId;
+
+                    entities.SaveChanges();
+
+                    return Request.CreateResponse(HttpStatusCode.OK, entity);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ex.Message);
+            }
         }
     }
 }
