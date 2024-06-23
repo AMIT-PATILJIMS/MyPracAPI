@@ -6,17 +6,19 @@ using System.Net.Http;
 using System.Runtime.Remoting.Messaging;
 using System.Web.Helpers;
 using System.Web.Http;
+using System.Web.Http.ModelBinding;
 using System.Web.Http.Results;
-using System.Web.Mvc;
+//using System.Web.Mvc;
 using EmployeeDataAccess;
-using HttpDeleteAttribute = System.Web.Http.HttpDeleteAttribute;
 
 namespace MyPracAPI.Controllers
 {
     public class EmployeesController : ApiController
     {
-       // [BasicAuthentication]
-        public IEnumerable<EmployeeData> GetEmployees() 
+        // [BasicAuthentication]
+        /*
+        [HttpGet]
+        public IEnumerable<EmployeeData> FetchListOfEmployees() 
         {
             using (MyEmployeeDetailsEntities entities = new MyEmployeeDetailsEntities()) 
             {
@@ -25,6 +27,27 @@ namespace MyPracAPI.Controllers
                 var empdata = entities.EmployeeDatas.ToList();
 
                 return empdata;
+            }
+        }
+        */
+
+        [HttpGet]
+        public IEnumerable<EmployeeData> MyEmployeesByGender(string gender="All")
+        {
+            using (MyEmployeeDetailsEntities entities = new MyEmployeeDetailsEntities())
+            {
+                if (gender.ToLower() == "all")
+                {
+                    return entities.EmployeeDatas.ToList();
+                }
+                else if (gender.ToLower() == "male")
+                {
+                    return entities.EmployeeDatas.Where(emp => emp.Gender.ToLower() == "male");
+                }
+                else 
+                {
+                    return entities.EmployeeDatas.Where(emp => emp.Gender.ToLower() == "female");
+                }
             }
         }
 
