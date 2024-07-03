@@ -13,6 +13,7 @@ using EmployeeDataAccess;
 
 namespace MyPracAPI.Controllers
 {
+    //[Authorize(Roles = "Admin")]
     public class EmployeesController : ApiController
     {
         // [BasicAuthentication]
@@ -30,7 +31,7 @@ namespace MyPracAPI.Controllers
             }
         }
         */
-
+        [BasicAuthentication]
         [HttpGet]
         public IEnumerable<EmployeeData> MyEmployeesByGender(string gender="All")
         {

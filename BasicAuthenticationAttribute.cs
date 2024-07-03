@@ -49,8 +49,12 @@ namespace MyPracAPI
                 //call the login method to check the username and password
                 if (EmployeeSecurity.LogIn(username, password))
                 {
+                    //Step1 : Create Identity Object
                     var identity = new GenericIdentity(username);
+
+                    //Step2 : Create Principal Object
                     IPrincipal principal = new GenericPrincipal(identity, null);
+
                     Thread.CurrentPrincipal = principal;
                     if (HttpContext.Current != null)
                     {
